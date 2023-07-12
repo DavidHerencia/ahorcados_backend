@@ -4,9 +4,17 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from dataclasses import dataclass
 from flask_cors import CORS
+from flask_caching import Cache
 import datetime
 
+# config
+cache = Cache(config={
+    "CACHE_TYPE": "SimpleCache",
+    "CACHE_DEFAULT_TIMEOUT": "2000"         
+    })
 app = Flask(__name__)
+cache.init_app(app)
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -93,12 +101,9 @@ class Game(db.Model):
         return f'<game {self.id}>'
 
 
-with app.app_context():
-        db.create_all()
-        db.session.commit()
-
 # routes
 @app.route('/player', methods=['GET', 'POST'])
+@cache.cached(timeout=300)  # Caché durante 5 minutos
 def route_player():
     if request.method == 'GET':
         return get_player()
@@ -106,6 +111,7 @@ def route_player():
         return post_player()
 
 @app.route('/player/<id>', methods=['GET', 'PUT', 'DELETE'])
+@cache.memoize(timeout=300)  # Caché durante 60 minutos
 def route_player_id(id):
     if request.method == 'GET':
         return get_player_id(id)
@@ -135,6 +141,7 @@ def route_lobby_id(id):
 
 
 @app.route('/game', methods=['GET', 'POST'])
+@cache.cached(timeout=300)  # Caché durante 5 minutos
 def route_game():
     if request.method == 'GET':
         return get_game()
@@ -142,6 +149,7 @@ def route_game():
         return post_game()
 
 @app.route('/game/<id>', methods=['GET', 'PUT', 'DELETE'])
+@cache.memoize(timeout=360)  # caché durante 6 minutos
 def route_game_id(id):
     if request.method == 'GET':
         return get_game_id(id)
@@ -151,6 +159,7 @@ def route_game_id(id):
         return delete_game(id)
 
 @app.route('/game/<id>/guess', methods=['PUT'])
+@cache.memoize(timeout=360)  # caché durante 6 minutos
 def route_game_id_guess(id):
     return update_game_id_guess(id)
 
@@ -168,6 +177,7 @@ def route_word_word(word):
         return get_word_word(word)
 
 @app.route('/leaderboard', methods=['GET'])
+@cache.cached(timeout=600)  # Caché durante 10 minutos
 def get_leaderboard():
     leaderboard = Player.query.order_by(Player.wins.desc()).all()
     leaderboard_data = [
@@ -180,6 +190,7 @@ def get_leaderboard():
         for player in leaderboard
     ]
     return jsonify(leaderboard_data)
+
 
 
 # methods
