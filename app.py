@@ -307,7 +307,7 @@ def update_game_id_guess(id):
         db.session.commit()
         return 'SUCCESS'
     elif 'guesses2' in json:
-:q        game.guesses2 = json['guesses2']
+        game.guesses2 = json['guesses2']
         if game.guesses2[-1] not in game.word2:
             game.lives2 -= 1
         db.session.commit()
