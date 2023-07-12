@@ -154,7 +154,6 @@ def route_game_id_guess(id):
 
 
 @app.route('/word', methods=['GET', 'POST'])
-@cache.memoize(timeout=1200)  # caché durante 20 minutos   al inicio para insertar desactivar esta linea
 def route_word():
     if request.method == 'GET':
         return get_word()
@@ -167,7 +166,6 @@ def route_word_word(word):
         return get_word_word(word)
 
 @app.route('/leaderboard', methods=['GET'])
-@cache.memoize(timeout=60)  # Caché durante 1 minuto
 def get_leaderboard():
     leaderboard = Player.query.order_by(Player.wins.desc()).all()
     leaderboard_data = [
