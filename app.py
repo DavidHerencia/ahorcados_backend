@@ -9,8 +9,7 @@ import datetime
 
 # config
 cache = Cache(config={
-    "CACHE_TYPE": "SimpleCache",
-    "CACHE_DEFAULT_TIMEOUT": "2000"         
+    "CACHE_TYPE": "SimpleCache"         
     })
 app = Flask(__name__)
 cache.init_app(app)
@@ -103,7 +102,7 @@ class Game(db.Model):
 
 # routes
 @app.route('/player', methods=['GET', 'POST'])
-@cache.cached(timeout=300)  # Caché durante 5 minutos
+@cache.memoize(timeout=300)  # Caché durante 5 minutos
 def route_player():
     if request.method == 'GET':
         return get_player()
@@ -111,7 +110,7 @@ def route_player():
         return post_player()
 
 @app.route('/player/<id>', methods=['GET', 'PUT', 'DELETE'])
-@cache.memoize(timeout=300)  # Caché durante 60 minutos
+@cache.memoize(timeout=300)  # Caché durante 6 minutos
 def route_player_id(id):
     if request.method == 'GET':
         return get_player_id(id)
@@ -141,7 +140,7 @@ def route_lobby_id(id):
 
 
 @app.route('/game', methods=['GET', 'POST'])
-@cache.cached(timeout=300)  # Caché durante 5 minutos
+@cache.memoize(timeout=300)  # Caché durante 5 minutos
 def route_game():
     if request.method == 'GET':
         return get_game()
@@ -177,7 +176,7 @@ def route_word_word(word):
         return get_word_word(word)
 
 @app.route('/leaderboard', methods=['GET'])
-@cache.cached(timeout=600)  # Caché durante 10 minutos
+@cache.memoize(timeout=300)  # Caché durante 6 minutos
 def get_leaderboard():
     leaderboard = Player.query.order_by(Player.wins.desc()).all()
     leaderboard_data = [
