@@ -4,15 +4,10 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from dataclasses import dataclass
 from flask_cors import CORS
-from flask_caching import Cache
 import datetime
 
 # config
-cache = Cache(config={
-    "CACHE_TYPE": "SimpleCache"         
-    })
 app = Flask(__name__)
-cache.init_app(app)
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -312,7 +307,7 @@ def update_game_id_guess(id):
         db.session.commit()
         return 'SUCCESS'
     elif 'guesses2' in json:
-        game.guesses2 = json['guesses2']
+:q        game.guesses2 = json['guesses2']
         if game.guesses2[-1] not in game.word2:
             game.lives2 -= 1
         db.session.commit()
